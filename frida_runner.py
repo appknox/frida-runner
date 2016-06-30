@@ -12,6 +12,8 @@ Author: dhilipsiva <dhilipsiva@gmail.com>
 Date created: 2016-06-29
 """
 
+from json import loads
+
 import click
 
 import frida
@@ -19,17 +21,34 @@ import sys
 
 SCRIPT_WRAPPER = """
 (function(){
-  var sendData = function (message) {
-    send("%(file_name)s", message);
+  var sendData = function (data) {
+    data["file_name"] = "%(file_name)s"
+    send(JSON.stringify(data));
   }
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~START~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %(content)s
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~END~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 })();
 """
 
 
+def _print_with_line_no(text):
+    """
+    docstring for _print_with_line_no
+    """
+    for i, line in enumerate(text.split("\n")):
+        line_no = i + 1
+        print('{:<3}'.format(line_no), "|", line)
+    print("==================================================================")
+
+
 def on_message(message, data):
-    print("Message: ", message)
-    print("Data: ", data)
+    if 'payload' in message:
+        message = loads(message['payload'])
+        for key in message:
+            print(key, ":", message[key])
+    else:
+        print(message)
     print("==================================================================")
 
 
@@ -42,7 +61,7 @@ def frida_runner(file_name, app_name):
     """
     content = open(file_name, "r").read()
     script_text = SCRIPT_WRAPPER % locals()
-    print(script_text)
+    _print_with_line_no(script_text)
     session = frida.get_usb_device().attach(app_name)
     script = session.create_script(script_text)
     script.on('message', on_message)
