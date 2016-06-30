@@ -1,0 +1,8 @@
+click==6.6
+colorama==0.3.7
+frida==7.2.6
+-e git+git@github.com:appknox/frida-runner.git@74e2018f15a87758e7c778a33deb46b1e11f41d3#egg=frida_runner-master
+prompt-toolkit==1.0.3
+Pygments==2.1.3
+six==1.10.0
+wcwidth==0.1.6
