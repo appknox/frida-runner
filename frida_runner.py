@@ -20,7 +20,7 @@ import sys
 SCRIPT_WRAPPER = """
 (function(){
   var sendData = function (message) {
-    send(%(file_name)s, message);
+    send("%(file_name)s", message);
   }
 %(content)s
 })();
