@@ -18,7 +18,7 @@ setup(
     name='frida-runner',
     description="A Stupid CLI script to run Frida on iOS or Android",
     url='https://github.com/appknox/frida-runner',
-    version='0.1.0',
+    version='0.1.1',
     py_modules=['frida_runner'],
     author='dhilipsiva',
     author_email='dhilipsiva@gmail.com',
