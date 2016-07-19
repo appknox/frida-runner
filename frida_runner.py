@@ -19,11 +19,16 @@ import click
 import frida
 import sys
 
+DEVICE_ID_PLACEHOLDER = "%s"
 SCRIPT_WRAPPER = """
 (function(){
   var sendData = function (data) {
-    data["file_name"] = "%(file_name)s"
-    send(JSON.stringify(data));
+    payload = {
+      "script_name": "%(script_name)s",
+      "device_id": %(device_id)s,
+      "data": data
+    };
+    send(JSON.stringify(payload));
   }
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~START~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %(content)s
@@ -44,23 +49,25 @@ def _print_with_line_no(text):
 
 def on_message(message, data):
     if 'payload' in message:
-        message = loads(message['payload'])
-        for key in message:
-            print(key, ":", message[key])
+        payload = loads(message['payload'])
+        for key in payload:
+            print(key, ":", payload[key])
     else:
         print(message)
     print("==================================================================")
 
 
 @click.command()
-@click.argument('file_name')
+@click.argument('script_name')
 @click.argument('app_name')
-def frida_runner(file_name, app_name):
+def frida_runner(script_name, app_name):
     """
     docstring for setup
     """
-    content = open(file_name, "r").read()
+    content = open(script_name, "r").read()
+    device_id = DEVICE_ID_PLACEHOLDER
     script_text = SCRIPT_WRAPPER % locals()
+    script_text = script_text % 1
     _print_with_line_no(script_text)
     session = frida.get_usb_device().attach(app_name)
     script = session.create_script(script_text)
