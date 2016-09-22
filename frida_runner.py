@@ -3,8 +3,6 @@
 #
 # vim: fenc=utf-8
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4
-#
-#
 
 """
 File name: frida_runner.py
@@ -12,10 +10,10 @@ Author: dhilipsiva <dhilipsiva@gmail.com>
 Date created: 2016-06-29
 """
 
+from __future__ import print_function
 from json import loads
 
 import click
-
 import frida
 import sys
 
@@ -30,14 +28,14 @@ SCRIPT_WRAPPER = """
     };
     send(JSON.stringify(payload));
   }
-  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~START~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  /******************** START ********************/
   try {
     %(content)s
   } catch (e) {
     var data = {"error": true, "script": "%(script_name)s", "stack": e.stack};
     send(JSON.stringify(data));
   }
-  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~END~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  /********************* END *********************/
 })();
 """
 
@@ -48,18 +46,21 @@ def _print_with_line_no(text):
     """
     for i, line in enumerate(text.split("\n")):
         line_no = i + 1
-        print('{:<3}'.format(line_no), "|", line)
-    print("==================================================================")
+        print('{:>3}'.format(line_no), "|", line)
+    print()
 
 
 def on_message(message, data):
     if 'payload' in message:
-        payload = loads(message['payload'])
-        for key in payload:
-            print(key, ":", payload[key])
+        try:
+            payload = loads(message['payload'])
+            for key in payload:
+                print(key, ":", payload[key])
+        except:
+            print(message)
     else:
         print(message)
-    print("==================================================================")
+    print
 
 
 @click.command()
@@ -70,12 +71,15 @@ def frida_runner(script_name, app_name):
     docstring for setup
     """
     content = open(script_name, "r").read()
+    _print_with_line_no(content)
+
     device_id = DEVICE_ID_PLACEHOLDER
     script_text = SCRIPT_WRAPPER % locals()
     script_text = script_text % 1
-    _print_with_line_no(script_text)
+
     session = frida.get_usb_device().attach(app_name)
     script = session.create_script(script_text)
     script.on('message', on_message)
     script.load()
+
     sys.stdin.read()
