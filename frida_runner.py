@@ -60,26 +60,33 @@ def on_message(message, data):
             print(message)
     else:
         print(message)
-    print
+    print()
 
 
 @click.command()
-@click.argument('script_name')
 @click.argument('app_name')
-def frida_runner(script_name, app_name):
+@click.argument('script_name')
+@click.option('-v', '--verbose', count=True)
+def frida_runner(app_name, script_name, verbose):
     """
-    docstring for setup
+    Attach a Frida script to a running app
     """
-    content = open(script_name, "r").read()
-    _print_with_line_no(content)
+    try:
+        content = open(script_name, "r").read()
 
-    device_id = DEVICE_ID_PLACEHOLDER
-    script_text = SCRIPT_WRAPPER % locals()
-    script_text = script_text % 1
+        device_id = DEVICE_ID_PLACEHOLDER
+        script_text = SCRIPT_WRAPPER % locals()
+        script_text = script_text % 1
 
-    session = frida.get_usb_device().attach(app_name)
-    script = session.create_script(script_text)
-    script.on('message', on_message)
-    script.load()
+        session = frida.get_usb_device().attach(app_name)
+        script = session.create_script(script_text)
 
-    sys.stdin.read()
+        if verbose:
+            _print_with_line_no(script_text)
+
+        script.on('message', on_message)
+        script.load()
+        sys.stdin.read()
+
+    except Exception as e:
+        print(e)
