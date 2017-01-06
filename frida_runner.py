@@ -78,11 +78,11 @@ def frida_runner(app_name, script_name, verbose):
         script_text = SCRIPT_WRAPPER % locals()
         script_text = script_text % 1
 
-        session = frida.get_usb_device().attach(app_name)
-        script = session.create_script(script_text)
-
         if verbose:
             _print_with_line_no(script_text)
+
+        session = frida.get_usb_device().attach(app_name)
+        script = session.create_script(script_text)
 
         script.on('message', on_message)
         script.load()
