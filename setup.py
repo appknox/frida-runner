@@ -6,19 +6,19 @@
 #
 #
 
-"""
+'''
 File name: setup.py
 Author: dhilipsiva <dhilipsiva@gmail.com>
 Date created: 2016-06-29
-"""
+'''
 
 from setuptools import setup
 
 setup(
     name='frida-runner',
-    description="A Stupid CLI script to run Frida on iOS or Android",
+    description='A Stupid CLI script to run Frida on iOS or Android',
     url='https://github.com/appknox/frida-runner',
-    version='0.1.1',
+    version='0.2.0',
     py_modules=['frida_runner'],
     author='dhilipsiva',
     author_email='dhilipsiva@gmail.com',
