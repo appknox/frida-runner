@@ -1,14 +1,8 @@
-#! /usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python
 #
-# vim: fenc=utf-8
-# vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4
-
-'''
-File name: frida_runner.py
-Author: dhilipsiva <dhilipsiva@gmail.com>
-Date created: 2016-06-29
-'''
+# Copyright (c) 2017 XYSec Labs
+# Distributed under terms of the MIT license
+#
 
 from __future__ import print_function
 from json import loads
@@ -41,9 +35,6 @@ SCRIPT_WRAPPER = '''
 
 
 def _print_with_line_no(text):
-    '''
-    docstring for _print_with_line_no
-    '''
     for i, line in enumerate(text.split('\n')):
         line_no = i + 1
         print('{:>3}'.format(line_no), '|', line)
@@ -66,11 +57,14 @@ def on_message(message, data):
 @click.command()
 @click.argument('app_name')
 @click.argument('script_name')
-@click.option('-v', '--verbose', count=True)
-def frida_runner(app_name, script_name, verbose):
-    '''
-    Attach a Frida script to a running app
-    '''
+@click.option(
+    '-v', '--verbose', is_flag=True, help='Print full script before attaching')
+@click.option(
+    '-H', '--host', type=str, help='Run on remote device at TEXT')
+def frida_runner(app_name, script_name, verbose, host):
+    """
+    Attach Frida script to an app running on a device
+    """
     try:
         content = open(script_name, 'r').read()
 
@@ -81,11 +75,18 @@ def frida_runner(app_name, script_name, verbose):
         if verbose:
             _print_with_line_no(script_text)
 
-        session = frida.get_usb_device().attach(app_name)
+        print('Starting session...')
+        if host:
+            remote_device = frida.get_device_manager().add_remote_device(host)
+            session = remote_device.attach(app_name)
+        else:
+            session = frida.get_usb_device().attach(app_name)
         script = session.create_script(script_text)
 
         script.on('message', on_message)
         script.load()
+
+        print('Connected')
         sys.stdin.read()
 
     except Exception as e:
