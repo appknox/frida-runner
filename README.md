@@ -2,7 +2,7 @@
 
 [![PyPI version](https://badge.fury.io/py/frida-runner.svg)](https://badge.fury.io/py/frida-runner)
 
-A stupid CLI script to run Frida JS-scripts on iOS or Android
+A stupid CLI script to run Frida scripts on a device
 
 ## Usage
 

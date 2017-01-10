@@ -1,7 +1,6 @@
-#! /bin/bash
+#!/bin/bash
 #
-# deploy.sh
-# Copyright (C) 2015 dhilipsiva <dhilipsiva@gmail.com>
+# Copyright (C) 2017 XYSec Labs (engineering@apppknox.com)
 #
 # Distributed under terms of the MIT license.
 #
